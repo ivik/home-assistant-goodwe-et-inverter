@@ -7,8 +7,8 @@ from typing import Any
 
 import voluptuous as vol
 
-from goodwe import Inverter, InverterError, connect
-from goodwe.const import GOODWE_TCP_PORT, GOODWE_UDP_PORT
+from .goodwe import Inverter, InverterError, connect
+from .goodwe.const import GOODWE_TCP_PORT, GOODWE_UDP_PORT
 from homeassistant.config_entries import (
     ConfigEntry,
     ConfigFlow,

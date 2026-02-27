@@ -9,8 +9,8 @@ from decimal import Decimal
 import logging
 from typing import Any
 
-from goodwe import Inverter, Sensor, SensorKind
-from goodwe.sensor import (
+from .goodwe import Inverter, Sensor, SensorKind
+from .goodwe.sensor import (
     Enum,
     Enum2,
     EnumBitmap4,
