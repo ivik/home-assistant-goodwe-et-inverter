@@ -1,3 +1,18 @@
+## GoodWe solar inverter for Home Assistant (Custom made for ET inverters)
+
+This is a fork made with minor enhancments. Original version can be found here: https://github.com/mletenay/home-assistant-goodwe-inverter
+
+I have for now added following support: 
+- Change charge and discharge current, from 0-25A with 0.5 steps.
+- Support for "battery total charge and "battery total discharge" in kWh from the BMS for battery port 1. Similar sensors exists but from the inverter which is calculated and looks at AC <-> DC <-> AC. This new sensor is from the BSM and is strictly looking at DC <-> DC.
+
+
+Please do NOT use this for your Home Assistant installation without truly testing everything first, I will not take any responsibility for anything. 
+Worse case your entire inverter and battery system could get destroyed, your house may or may not get burned down and your wife will certainly leave you when that happens!
+
+
+## Below is the original readme file!
+
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/mletenay)
 [![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/hacs/integration)
 [![Build Status](https://github.com/mletenay/home-assistant-goodwe-inverter/actions/workflows/hassfest.yaml/badge.svg)](https://github.com/mletenay/home-assistant-goodwe-inverter/actions/workflows/hassfest.yaml)
