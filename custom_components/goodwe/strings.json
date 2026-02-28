@@ -26,12 +26,6 @@
       }
     },
     "number": {
-      "battery_charge_current": {
-        "name": "Battery charge current limit"
-      },
-      "battery_discharge_current": {
-        "name": "Battery discharge current limit"
-      },
       "battery_discharge_depth": {
         "name": "Depth of discharge (on-grid)"
       },
@@ -61,6 +55,12 @@
       }
     },
     "select": {
+      "battery_charge_current": {
+        "name": "Battery charge current limit"
+      },
+      "battery_discharge_current": {
+        "name": "Battery discharge current limit"
+      },
       "ems_mode": {
         "name": "EMS mode",
         "state": {

@@ -11,6 +11,7 @@ from homeassistant.const import (
     STATE_UNKNOWN,
     EntityCategory,
     Platform,
+    UnitOfElectricCurrent,
 )
 from homeassistant.core import Event, HomeAssistant
 from homeassistant.helpers import entity_registry as er
@@ -58,6 +59,26 @@ EMS_MODE = GoodweSelectEntityDescription(
     entity_category=EntityCategory.CONFIG,
     translation_key="ems_mode",
     options={e.name.lower(): e for e in list(EMSMode)},
+)
+
+# Options for battery current limit selects: 0.0 to 25.0 A in 0.5 A steps
+_CURRENT_OPTIONS: list[str] = [f"{i / 2:.1f}" for i in range(51)]
+
+CURRENT_LIMITS = (
+    SelectEntityDescription(
+        key="battery_charge_current",
+        translation_key="battery_charge_current",
+        icon="mdi:battery-arrow-up",
+        entity_category=EntityCategory.CONFIG,
+        unit_of_measurement=UnitOfElectricCurrent.AMPERE,
+    ),
+    SelectEntityDescription(
+        key="battery_discharge_current",
+        translation_key="battery_discharge_current",
+        icon="mdi:battery-arrow-down",
+        entity_category=EntityCategory.CONFIG,
+        unit_of_measurement=UnitOfElectricCurrent.AMPERE,
+    ),
 )
 
 
@@ -136,6 +157,20 @@ async def async_setup_entry(
             ems_mode,
         )
         async_add_entities([entity])
+
+    # read current battery current limits from the inverter
+    current_limit_entities = []
+    for description in CURRENT_LIMITS:
+        try:
+            value = await inverter.read_setting(description.key)
+        except (InverterError, ValueError):
+            _LOGGER.debug("Could not read inverter setting %s", description.key)
+            continue
+        current_limit_entities.append(
+            InverterCurrentLimitEntity(device_info, description, inverter, value)
+        )
+    if current_limit_entities:
+        async_add_entities(current_limit_entities)
 
 
 class InverterOperationModeEntity(SelectEntity):
@@ -253,3 +288,43 @@ class InverterEMSModeEntity(SelectEntity):
         """Get the current EMS mode from inverter."""
         value = await self._inverter.get_ems_mode()
         self._attr_current_option = value.name.lower()
+
+
+def _current_to_option(value: float) -> str:
+    """Round a float current value to the nearest 0.5 A option string."""
+    rounded = round(value * 2) / 2
+    rounded = max(0.0, min(25.0, rounded))
+    return f"{rounded:.1f}"
+
+
+class InverterCurrentLimitEntity(SelectEntity):
+    """Entity representing a battery current limit setting as a dropdown."""
+
+    _attr_should_poll = False
+    _attr_has_entity_name = True
+
+    def __init__(
+        self,
+        device_info: DeviceInfo,
+        description: SelectEntityDescription,
+        inverter: Inverter,
+        current_value: float,
+    ) -> None:
+        """Initialize the battery current limit select entity."""
+        self.entity_description = description
+        self._attr_unique_id = f"{DOMAIN}-{description.key}-{inverter.serial_number}"
+        self._attr_device_info = device_info
+        self._attr_options = _CURRENT_OPTIONS
+        self._attr_current_option = _current_to_option(current_value)
+        self._inverter: Inverter = inverter
+
+    async def async_select_option(self, option: str) -> None:
+        """Write the selected current limit to the inverter."""
+        await self._inverter.write_setting(self.entity_description.key, float(option))
+        self._attr_current_option = option
+        self.async_write_ha_state()
+
+    async def async_update(self) -> None:
+        """Read the current limit back from the inverter."""
+        value = await self._inverter.read_setting(self.entity_description.key)
+        self._attr_current_option = _current_to_option(value)

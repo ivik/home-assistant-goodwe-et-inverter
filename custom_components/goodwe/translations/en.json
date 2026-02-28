@@ -55,11 +55,20 @@
             "fast_charging_power": {
                 "name": "Fast charging power"
             },
-              "fast_charging_soc": {
+            "fast_charging_soc": {
                 "name": "Fast charging SoC"
+            },
+            "soc_upper_limit": {
+                "name": "SoC upper limit"
             }
         },
         "select": {
+            "battery_charge_current": {
+                "name": "Battery charge current limit"
+            },
+            "battery_discharge_current": {
+                "name": "Battery discharge current limit"
+            },
             "ems_mode": {
                 "name": "EMS mode",
                 "state": {
