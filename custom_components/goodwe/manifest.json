@@ -4,13 +4,14 @@
   "codeowners": [
     "@mletenay",
     "@starkillerOG",
-    "@fizcris"
+    "@fizcris",
+    "@ivik"
   ],
   "config_flow": true,
-  "documentation": "https://github.com/mletenay/home-assistant-goodwe-inverter",
+  "documentation": "https://github.com/ivik/home-assistant-goodwe-et-inverter",
   "iot_class": "local_polling",
-  "issue_tracker": "https://github.com/mletenay/home-assistant-goodwe-inverter/issues",
+  "issue_tracker": "https://github.com/ivik/home-assistant-goodwe-et-inverter/issues",
   "loggers": ["goodwe"],
   "requirements": [],
-  "version": "0.9.9.29"
+  "version": "1.0.0"
 }

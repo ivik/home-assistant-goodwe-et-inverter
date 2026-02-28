@@ -240,9 +240,13 @@ class ET(Inverter):
         CellVoltage(
             "battery_min_cell_voltage", 37023, "Battery Min Cell Voltage", Kind.BAT
         ),
-        # Energy4("battery_total_charge", 37056, "Total Battery 1 Charge", Kind.BAT),
-        # Energy4("battery_total_discharge", 37058, "Total Battery 1 Discharge", Kind.BAT),
         # String8("battery_sn", 37060, "Battery S/N", Kind.BAT),
+    )
+
+    # Modbus registers from offset 0x90C0 (37056)
+    __all_sensors_battery_energy: tuple[Sensor, ...] = (
+        Energy4("battery_total_charge", 37056, "Total Battery 1 Charge", Kind.BAT),
+        Energy4("battery_total_discharge", 37058, "Total Battery 1 Discharge", Kind.BAT),
     )
 
     # Modbus registers from offset 0x9858 (39000)
@@ -709,18 +713,21 @@ class ET(Inverter):
             0x8CA0, 0x7D
         )
         self._READ_BATTERY_INFO: ProtocolCommand = self._read_command(0x9088, 0x0018)
+        self._READ_BATTERY_ENERGY_INFO: ProtocolCommand = self._read_command(0x90C0, 0x0004)
         self._READ_BATTERY2_INFO: ProtocolCommand = self._read_command(0x9858, 0x0016)
         self._READ_BATTERY2_INFO_EXTENDED = self._read_command(0x89BE, 0x06)
         self._READ_MPPT_DATA: ProtocolCommand = self._read_command(0x89E5, 0x3D)
         self._has_eco_mode_v2: bool = True
         self._has_peak_shaving: bool = True
         self._has_battery: bool = True
+        self._has_battery_energy: bool = True
         self._has_battery2: bool = False
         self._has_meter_extended: bool = False
         self._has_meter_extended2: bool = False
         self._has_mppt: bool = False
         self._sensors = self.__all_sensors
         self._sensors_battery = self.__all_sensors_battery
+        self._sensors_battery_energy = self.__all_sensors_battery_energy
         self._sensors_battery2 = self.__all_sensors_battery2
         self._sensors_battery2_extended = self.__all_sensors_battery2_extended
         self._sensors_meter = self.__all_sensors_meter
@@ -827,6 +834,18 @@ class ET(Inverter):
                         "Battery values not supported, disabling further attempts."
                     )
                     self._has_battery = False
+                else:
+                    raise ex
+        if self._has_battery and self._has_battery_energy:
+            try:
+                response = await self._read_from_socket(self._READ_BATTERY_ENERGY_INFO)
+                data.update(self._map_response(response, self._sensors_battery_energy))
+            except RequestRejectedException as ex:
+                if ex.message == ILLEGAL_DATA_ADDRESS:
+                    logger.info(
+                        "Battery energy values not supported, disabling further attempts."
+                    )
+                    self._has_battery_energy = False
                 else:
                     raise ex
         if self._has_battery2:
@@ -1123,6 +1142,8 @@ class ET(Inverter):
         result = self._sensors + self._sensors_meter
         if self._has_battery:
             result = result + self._sensors_battery
+            if self._has_battery_energy:
+                result = result + self._sensors_battery_energy
         if self._has_battery2:
             result = result + self._sensors_battery2
             result = result + self._sensors_battery2_extended

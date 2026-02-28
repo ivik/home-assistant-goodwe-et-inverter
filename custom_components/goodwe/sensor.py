@@ -72,6 +72,8 @@ _MAIN_SENSORS = (
     "meter_e_total_imp",
     "e_bat_charge_total",
     "e_bat_discharge_total",
+    "battery_total_charge",
+    "battery_total_discharge",
 )
 
 _ICONS: dict[SensorKind, str] = {
