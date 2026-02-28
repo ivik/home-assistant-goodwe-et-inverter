@@ -13,5 +13,5 @@
   "issue_tracker": "https://github.com/ivik/home-assistant-goodwe-et-inverter/issues",
   "loggers": ["goodwe"],
   "requirements": [],
-  "version": "1.0.0"
+  "version": "1.0.1"
 }
